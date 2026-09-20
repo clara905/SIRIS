@@ -1,0 +1,16 @@
+.siris-wordmark {
+    display: inline-block;
+    font-family: "Arial Black", "Segoe UI", sans-serif;
+    font-size: inherit;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: .065em;
+    line-height: 1.1;
+    padding-right: .12em;
+    color: #f4d69a;
+    background: linear-gradient(125deg, #fff5dc 10%, #e9c27b 60%, #c9984c);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 6px #230a1240);
+}

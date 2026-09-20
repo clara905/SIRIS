@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
 
         User::updateOrCreate(
             [
-                'email' => 'Kirana@kemhan.go.id',
+                'email' => 'kirana@kemhan.go.id',
             ],
             [
                 'name' => 'Administrator SIRIS',

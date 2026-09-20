@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RiskAssessment extends Model
@@ -36,6 +37,16 @@ class RiskAssessment extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function vulnerabilities(): BelongsToMany
+    {
+        return $this->belongsToMany(Vulnerability::class);
+    }
+
+    public function threats(): BelongsToMany
+    {
+        return $this->belongsToMany(Threat::class);
     }
 
     public function threat(): BelongsTo

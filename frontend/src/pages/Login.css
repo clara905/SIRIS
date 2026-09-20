@@ -1,0 +1,126 @@
+.siris-login {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 28px 24px;
+    background: radial-gradient(ellipse at 15% 10%, #e9dfd4 0, transparent 55%), #f3f2ef;
+    color: #242936;
+    line-height: 1.5;
+}
+
+.login-shell {
+    width: 100%;
+    max-width: 1120px;
+    display: grid;
+    grid-template-columns: 1fr 1.08fr;
+    background: #fff;
+    border: 1px solid #e5e1da;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px #34221e12;
+}
+
+.login-identity {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 64px;
+    padding: 38px 44px 32px;
+    color: #fff;
+    background-color: #3d141c;
+    background-image:
+        radial-gradient(ellipse at 100% 100%, #8e383a66 0, transparent 65%),
+        linear-gradient(145deg, #3d141ce6 0%, #611d28bf 55%, #3d141ce6 100%),
+        url("/kemhan-building.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.login-identity::after {
+    content: "";
+    position: absolute;
+    width: 460px;
+    height: 460px;
+    right: -260px;
+    bottom: -215px;
+    border: 1px solid #d4ad6340;
+    border-radius: 50%;
+    box-shadow: 0 0 0 42px #d4ad6308, 0 0 0 85px #d4ad6306;
+    pointer-events: none;
+}
+
+.login-institution { display: flex; align-items: center; gap: 14px; }
+.login-institution img { width: 82px; height: 82px; object-fit: contain; flex-shrink: 0; }
+.login-institution div { font-size: 11px; font-weight: 700; letter-spacing: 1.1px; }
+.login-institution span { display: block; margin-top: 4px; font-size: 10px; font-weight: 400; color: #e2cbd0; letter-spacing: 1.8px; }
+.login-eyebrow { color: #e2c38a; font-size: 10px; letter-spacing: 2px; font-weight: 600; }
+.login-intro h1 { margin-top: 14px; font-size: 56px; font-weight: 750; letter-spacing: 3px; line-height: 1.15; }
+.login-wordmark { font-size: clamp(52px, 5.5vw, 76px); }
+.login-intro h1 span { display: block; margin-top: 24px; font-size: 32px; font-weight: 500; line-height: 1.35; letter-spacing: -.7px; }
+.login-intro > p { margin-top: 20px; max-width: 345px; color: #e0cbd0; font-size: 14px; line-height: 1.85; }
+.login-identity-rule { width: 44px; height: 2px; background: #d4ad63; margin: 30px 0 20px; }
+.login-purpose { display: flex; align-items: center; gap: 12px; color: #eadbc0; font-size: 12px; }
+.login-purpose svg { flex-shrink: 0; }
+.login-identity-footer { font-size: 10px; color: #d0aeb6; }
+
+.login-form-panel { padding: 48px 52px 38px; display: flex; align-items: center; }
+.login-form { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+.login-form-heading { margin-bottom: 6px; }
+.login-portal-label { display: inline-flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 700; letter-spacing: 1.4px; color: #8d3541; }
+.login-form-heading h2 { margin-top: 16px; font-size: 27px; line-height: 1.3; letter-spacing: -.8px; }
+.login-form-heading p { margin-top: 10px; font-size: 13px; color: #727681; line-height: 1.7; }
+.login-field { display: flex; flex-direction: column; gap: 8px; }
+.login-field label { font-size: 12px; font-weight: 650; }
+.login-input-wrap { display: flex; align-items: center; gap: 12px; padding-left: 14px; border: 1px solid #dddfe4; border-radius: 8px; background: #fff; }
+.login-input-wrap > svg { color: #91949d; flex-shrink: 0; }
+.login-input-wrap input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; padding: 13px 12px 13px 0; font-size: 13px; color: #242936; }
+.login-input-wrap:focus-within { border-color: #8d3541; box-shadow: 0 0 0 3px #8d354112; }
+.login-password-toggle { display: grid; place-items: center; align-self: stretch; min-width: 44px; background: transparent; border: 0; color: #757984; border-radius: 6px; }
+.login-password-toggle:hover { color: #782b37; background: #fbf6f7; }
+.login-captcha-field { gap: 10px; }
+.login-captcha-challenge { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 62px; }
+.login-captcha-challenge img { width: 198px; max-width: 100%; height: auto; border: 1px solid #e3e4e8; border-radius: 6px; }
+.login-captcha-challenge > span { font-size: 12px; color: #727681; }
+.login-captcha-refresh { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 4px; border: 0; background: transparent; color: #85323e; font-size: 12px; font-weight: 600; }
+.login-captcha-input { width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid #dddfe4; border-radius: 8px; background: #fff; font-size: 13px; letter-spacing: 1px; }
+.login-form #captcha-help { font-size: 11px; line-height: 1.6; color: #727681; }
+.login-submit { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; border: 1px solid #6a222e; border-radius: 8px; background: #722734; color: #fff; font-size: 13px; font-weight: 600; box-shadow: 0 5px 12px #72273418; transition: background .2s; }
+.login-submit:hover:not(:disabled) { background: #511823; }
+.login-form button:disabled { opacity: .55; cursor: not-allowed; }
+.login-form input:disabled { background: #f6f6f7; }
+.login-form button:focus-visible, .login-captcha-input:focus-visible { outline: 2px solid #9e5b65; outline-offset: 3px; }
+.login-alert { padding: 12px 14px; border: 1px solid #efccd1; border-radius: 8px; color: #932d3a; background: #fff5f6; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.login-access-note { display: flex; justify-content: center; align-items: center; gap: 7px; color: #83858e; font-size: 11px; }
+.login-page-footer { margin-top: 22px; color: #85818a; font-size: 11px; letter-spacing: .3px; }
+.login-page-footer span { padding: 0 8px; }
+
+@media (max-width: 960px) {
+    .login-identity { padding: 32px 28px; }
+    .login-form-panel { padding: 38px 30px; }
+    .login-institution { gap: 5px; }
+    .login-institution div { font-size: 9px; }
+    .login-institution span { font-size: 9px; letter-spacing: 1px; }
+    .login-intro h1 span { font-size: 28px; }
+}
+
+@media (max-width: 720px) {
+    .siris-login { padding: 20px 16px; }
+    .login-shell { max-width: 480px; grid-template-columns: minmax(0, 1fr); border-radius: 16px; }
+    .login-identity { padding: 20px 24px; gap: 18px; }
+    .login-institution { gap: 10px; }
+    .login-institution img { width: 64px; height: 64px; }
+    .login-institution div { font-size: 10px; }
+    .login-intro h1 { font-size: 30px; margin-top: 6px; }
+    .login-wordmark { font-size: clamp(52px, 5.5vw, 76px); }
+    .login-intro h1 span, .login-intro > p, .login-identity-rule, .login-purpose, .login-identity-footer { display: none; }
+    .login-eyebrow { font-size: 9px; }
+    .login-form-panel { padding: 28px 24px; }
+    .login-form-heading h2 { font-size: 24px; }
+    .login-input-wrap input, .login-captcha-input { font-size: 16px; }
+}

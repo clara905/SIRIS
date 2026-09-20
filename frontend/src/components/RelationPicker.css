@@ -1,0 +1,10 @@
+.relation-picker { padding: 16px; border: 1px solid #e8dfe3; border-radius: 10px; background: #fcfafb; }
+.relation-picker p { margin: 10px 0; font-size: 11px; color: #897584; line-height: 1.6; }
+.relation-options { max-height: 180px; overflow: auto; }
+.asset-form-fields .relation-options label { display: flex; flex-direction: row; align-items: center; padding: 9px 0; font-weight: 400; }
+.asset-form-fields .relation-options input { width: 16px; height: 16px; flex-shrink: 0; accent-color: #80384b; }
+.relation-pages { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.relation-pages small { font-size: 10px; color: #897584; }
+.relation-selected { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; list-style: none; margin: 12px 0 0; }
+.relation-selected li { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; background: #f2e8ed; font-size: 11px; overflow-wrap: anywhere; }
+.relation-selected button { display: grid; place-items: center; min-width: 24px; min-height: 24px; border: 0; background: transparent; color: #80384b; }

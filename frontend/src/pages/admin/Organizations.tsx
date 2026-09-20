@@ -1,0 +1,54 @@
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Building2, Network, Landmark, Plus, Search, Pencil, RefreshCw, X, ChevronLeft, ChevronRight } from "lucide-react";
+import api, { getApiError } from "../../api/axios";
+import "./Dashboard.css";
+import "./Assets.css";
+import "./Organizations.css";
+
+type Kind = "bidangs" | "sub-bidangs" | "satkers";
+interface Unit { id: number; nama_bidang?: string; nama_sub_bidang?: string; nama_satker?: string; kode_satker?: string | null; bidang_id?: number | null; bidang?: { nama_bidang: string } | null; users_count: number; assets_count: number }
+const categories = [{ key: "bidangs" as const, label: "Bidang", icon: Building2, description: "Unit utama organisasi" }, { key: "sub-bidangs" as const, label: "Subbidang", icon: Network, description: "Bagian di bawah bidang" }, { key: "satkers" as const, label: "Satuan kerja", icon: Landmark, description: "Unit pelaksana kerja" }];
+const nameOf = (item: Unit) => item.nama_bidang || item.nama_sub_bidang || item.nama_satker || "Tanpa nama";
+export default function Organizations() {
+    const [data, setData] = useState<Record<Kind, Unit[]>>({ bidangs: [], "sub-bidangs": [], satkers: [] });
+    const [kind, setKind] = useState<Kind>("bidangs");
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [notice, setNotice] = useState("");
+    const [revision, setRevision] = useState(0);
+    const [editor, setEditor] = useState<{ kind: Kind; item?: Unit } | null>(null);
+    useEffect(() => {
+        const controller = new AbortController(); setLoading(true); setError("");
+        Promise.all(categories.map((category) => api.get<{ data: Unit[] }>(`/admin/${category.key}`, { signal: controller.signal }))).then(([bidangs, subs, satkers]) => { if (!controller.signal.aborted) setData({ bidangs: bidangs.data.data, "sub-bidangs": subs.data.data, satkers: satkers.data.data }); }).catch((err) => { if (!controller.signal.aborted) setError(getApiError(err)); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
+        return () => controller.abort();
+    }, [revision]);
+    const label = categories.find((item) => item.key === kind)!.label;
+    const filtered = data[kind].filter((item) => `${nameOf(item)} ${item.kode_satker || ""} ${item.bidang?.nama_bidang || ""}`.toLocaleLowerCase("id-ID").includes(search.trim().toLocaleLowerCase("id-ID")));
+    const last = Math.max(1, Math.ceil(filtered.length / 15));
+    const current = Math.min(page, last);
+    const rows = filtered.slice((current - 1) * 15, current * 15);
+    function open(item?: Unit) { setNotice(""); setEditor({ kind, item }); }
+    return <div className="dashboard assets-page organizations-page">
+        <div className="page-header"><div><span className="dashboard-eyebrow">STRUKTUR & UNIT KERJA</span><h1>Manajemen Organisasi</h1><p>Kelola bidang, subbidang, dan satuan kerja dalam satu tempat.</p></div><button className="asset-primary" disabled={loading || !!error} onClick={() => open()}><Plus size={17} />Tambah {label.toLowerCase()}</button></div>
+        <section className="asset-intro"><div className="asset-intro-icon"><Building2 size={32} /></div><div className="asset-intro-copy"><span className="asset-hero-eyebrow">ORGANISASI SIRIS</span><h2>Struktur yang jelas.<br />Koordinasi yang terarah.</h2><p>Hubungkan unit kerja dengan bidang untuk mendukung pengelolaan pengguna dan aset.</p></div><div className="asset-hero-metric"><span>Total unit organisasi</span><strong>{loading || error ? "?" : Object.values(data).reduce((total, items) => total + items.length, 0).toLocaleString("id-ID")}</strong><small>Bidang, subbidang, dan satuan kerja</small></div></section>
+        <div className="asset-category-cards organization-categories" role="group" aria-label="Jenis organisasi">{categories.map(({ key, label: title, icon: Icon, description }) => <button key={key} className={`asset-category-card ${kind === key ? "is-active" : ""}`} aria-pressed={kind === key} onClick={() => { setKind(key); setSearch(""); setPage(1); }}><span className="asset-card-icon"><Icon size={22} /></span><strong>{title} <span className="organization-count">{loading || error ? "?" : data[key].length}</span></strong><small>{description}</small><span className="asset-card-indicator" aria-hidden="true" /></button>)}</div>
+        {notice && <p className="asset-notice" role="status">{notice}</p>}
+        <section className="dashboard-panel"><div className="panel-header asset-panel-heading"><div><h3>Daftar {label}</h3><p>Identitas unit serta jumlah pengguna dan aset terkait.</p></div><button className="refresh-button" disabled={loading} onClick={() => setRevision((v) => v + 1)}><RefreshCw size={15} className={loading ? "dashboard-spinning" : ""} />Perbarui</button></div><div className="asset-filters"><div className="asset-filter-caption"><span className="asset-filter-dot" />{label}{search && <button onClick={() => { setSearch(""); setPage(1); }}>Reset pencarian <X size={12} /></button>}</div><div className="asset-search"><Search size={17} /><input aria-label="Cari nama, kode, atau bidang" placeholder="Cari nama, kode, atau bidang..." value={search} maxLength={255} onChange={(event) => { setSearch(event.target.value); setPage(1); }} /></div></div>
+        {loading ? <div className="asset-empty" role="status"><RefreshCw className="dashboard-spinning" /><p>Memuat organisasi...</p></div> : error ? <div className="asset-empty" role="alert"><Building2 /><h3>Data belum dapat dimuat</h3><p>{error}</p><button className="asset-edit" onClick={() => setRevision((v) => v + 1)}>Coba lagi</button></div> : rows.length ? <><div className="table-wrapper"><table className="dashboard-table asset-table"><caption className="asset-sr-only">Daftar {label}</caption><thead><tr><th scope="col">Nama {label}</th>{kind !== "bidangs" && <th scope="col">Bidang induk</th>}<th scope="col">Pengguna</th><th scope="col">Aset</th><th scope="col">Aksi</th></tr></thead><tbody>{rows.map((item) => <tr key={item.id}><td><div className="asset-name"><span className="asset-type-icon organization-icon"><Building2 size={20} /></span><div><strong>{nameOf(item)}</strong>{kind === "satkers" && <small className="table-subtext">{item.kode_satker || "Tanpa kode"}</small>}</div></div></td>{kind !== "bidangs" && <td>{item.bidang?.nama_bidang || "Belum ditentukan"}</td>}<td>{item.users_count} pengguna</td><td>{item.assets_count} aset</td><td><button className="asset-edit" aria-label={`Edit ${nameOf(item)}`} onClick={() => open(item)}><Pencil size={15} />Edit</button></td></tr>)}</tbody></table></div><div className="asset-pagination"><span>Menampilkan {(current - 1) * 15 + 1}?{Math.min(current * 15, filtered.length)} dari {filtered.length} unit</span><div><button aria-label="Halaman sebelumnya" disabled={current <= 1} onClick={() => setPage(current - 1)}><ChevronLeft size={17} /></button><span>Halaman {current} dari {last}</span><button aria-label="Halaman berikutnya" disabled={current >= last} onClick={() => setPage(current + 1)}><ChevronRight size={17} /></button></div></div></> : <div className="asset-empty"><Building2 size={32} /><h3>{search ? "Unit tidak ditemukan" : `Belum ada ${label.toLowerCase()}`}</h3><p>{search ? "Coba kata kunci lain." : "Tambahkan unit untuk melengkapi struktur organisasi."}</p><button className="asset-primary" onClick={search ? () => setSearch("") : () => open()}>{search ? "Reset pencarian" : `Tambah ${label.toLowerCase()}`}</button></div>}
+        </section>{editor && <OrganizationEditor kind={editor.kind} item={editor.item} bidangs={data.bidangs} onClose={() => setEditor(null)} onSaved={() => { setEditor(null); setNotice("Data organisasi berhasil disimpan."); setRevision((v) => v + 1); }} />}
+    </div>;
+}
+function OrganizationEditor({ kind, item, bidangs, onClose, onSaved }: { kind: Kind; item?: Unit; bidangs: Unit[]; onClose: () => void; onSaved: () => void }) {
+    const dialog = useRef<HTMLDialogElement>(null);
+    const [name, setName] = useState(item ? nameOf(item) : "");
+    const [bidang, setBidang] = useState(item?.bidang_id ? String(item.bidang_id) : "");
+    const [code, setCode] = useState(item?.kode_satker || "");
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+    const label = categories.find((category) => category.key === kind)!.label.toLowerCase();
+    useEffect(() => { const element = dialog.current; element?.showModal(); return () => element?.close(); }, []);
+    async function submit(event: FormEvent) { event.preventDefault(); if (saving) return; setSaving(true); setError(""); const payload = kind === "bidangs" ? { nama_bidang: name.trim() } : kind === "sub-bidangs" ? { nama_sub_bidang: name.trim(), bidang_id: Number(bidang) } : { nama_satker: name.trim(), kode_satker: code.trim() || null, bidang_id: bidang ? Number(bidang) : null }; try { if (item) await api.put(`/admin/${kind}/${item.id}`, payload); else await api.post(`/admin/${kind}`, payload); onSaved(); } catch (err) { setError(getApiError(err)); } finally { setSaving(false); } }
+    return <dialog ref={dialog} className="asset-dialog" aria-labelledby="organization-editor-title" onCancel={(event) => { event.preventDefault(); if (!saving) onClose(); }}><form onSubmit={submit}><header><div><span className="dashboard-eyebrow">STRUKTUR ORGANISASI</span><h2 id="organization-editor-title">{item ? "Edit" : "Tambah"} {label}</h2></div><button type="button" className="asset-edit" disabled={saving} aria-label="Tutup formulir" onClick={onClose}><X size={20} /></button></header><div className="asset-form-fields"><p>Lengkapi informasi unit. Kolom bertanda * wajib diisi.</p><label>Nama {label} *<input autoFocus required maxLength={255} value={name} onChange={(event) => setName(event.target.value)} /></label>{kind !== "bidangs" && <label>Bidang induk {kind === "sub-bidangs" ? "*" : "(opsional)"}<select required={kind === "sub-bidangs"} value={bidang} onChange={(event) => setBidang(event.target.value)}><option value="">Pilih bidang</option>{bidangs.map((unit) => <option key={unit.id} value={unit.id}>{unit.nama_bidang}</option>)}</select></label>}{kind === "sub-bidangs" && !bidangs.length && <p>Tambahkan bidang terlebih dahulu sebelum membuat subbidang.</p>}{kind === "satkers" && <label>Kode satuan kerja *<input name="kode_satker" required maxLength={100} value={code} onChange={(event) => setCode(event.target.value)} /></label>}{error && <p className="asset-form-error" role="alert">{error}</p>}</div><footer><button type="button" className="asset-edit" disabled={saving} onClick={onClose}>Batal</button><button className="asset-primary" disabled={saving || !name.trim() || (kind === "sub-bidangs" && !bidang)}>{saving ? "Menyimpan..." : "Simpan unit"}</button></footer></form></dialog>;
+}

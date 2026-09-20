@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssetRequest;
 use App\Models\Asset;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class AssetController extends Controller
 {
@@ -34,7 +34,10 @@ class AssetController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->where('kode_aset', 'like', "%{$search}%")
-                  ->orWhere('nama_aset', 'like', "%{$search}%");
+                    ->orWhere('nama_aset', 'like', "%{$search}%")
+                    ->orWhere('snumber', 'like', "%{$search}%")
+                    ->orWhere('merk', 'like', "%{$search}%")
+                    ->orWhere('lokasi', 'like', "%{$search}%");
             });
         }
 
@@ -48,21 +51,9 @@ class AssetController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(AssetRequest $request)
     {
-        $validated = $request->validate([
-            'kode_aset' => ['required', 'string', 'max:100', 'unique:assets,kode_aset'],
-            'nama_aset' => ['required', 'string', 'max:255'],
-            'kategori' => [
-                'required',
-                Rule::in(['physical', 'software', 'digital']),
-            ],
-            'bidang_id' => ['nullable', 'exists:bidangs,id'],
-            'sub_bidang_id' => ['nullable', 'exists:sub_bidangs,id'],
-            'satker_id' => ['nullable', 'exists:satkers,id'],
-            'deskripsi' => ['nullable', 'string'],
-            'nilai_kekritisan' => ['nullable', 'integer', 'min:1', 'max:5'],
-        ]);
+        $validated = $request->assetAttributes();
 
         $asset = Asset::create($validated);
 
@@ -94,26 +85,9 @@ class AssetController extends Controller
         ]);
     }
 
-    public function update(Request $request, Asset $asset)
+    public function update(AssetRequest $request, Asset $asset)
     {
-        $validated = $request->validate([
-            'kode_aset' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('assets', 'kode_aset')->ignore($asset->id),
-            ],
-            'nama_aset' => ['required', 'string', 'max:255'],
-            'kategori' => [
-                'required',
-                Rule::in(['physical', 'software', 'digital']),
-            ],
-            'bidang_id' => ['nullable', 'exists:bidangs,id'],
-            'sub_bidang_id' => ['nullable', 'exists:sub_bidangs,id'],
-            'satker_id' => ['nullable', 'exists:satkers,id'],
-            'deskripsi' => ['nullable', 'string'],
-            'nilai_kekritisan' => ['nullable', 'integer', 'min:1', 'max:5'],
-        ]);
+        $validated = $request->assetAttributes();
 
         $asset->update($validated);
 

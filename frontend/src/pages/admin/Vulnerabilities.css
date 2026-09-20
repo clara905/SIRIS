@@ -1,0 +1,20 @@
+.vulnerability-intro { background: radial-gradient(ellipse at right bottom, #ba93562a, transparent 65%), linear-gradient(115deg, #382433, #624052); }
+.vulnerability-symbol { color: #876391; background: #f1eaf5; }
+.vulnerability-table { min-width: 760px; }
+.vulnerabilities-page .vulnerability-table td { padding-top: 22px; padding-bottom: 22px; vertical-align: middle; }
+.vulnerabilities-page .asset-description { max-width: 400px; }
+.vulnerability-count { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #e5dbe9; border-radius: 20px; background: #f9f5fc; color: #85648e; padding: 8px 11px; font-size: 11px; white-space: nowrap; }
+.vulnerability-count:hover { background: #eee4f5; }
+.vulnerability-actions { display: flex; gap: 8px; }
+.vulnerability-detail-title { display: flex; align-items: center; gap: 12px; }
+.vulnerability-detail-title h3 { font-size: 18px; line-height: 1.5; overflow-wrap: anywhere; }
+.vulnerability-detail .threat-status { align-self: flex-start; }
+.vulnerability-detail .vulnerability-detail-description { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; color: #796b77; }
+.vulnerability-linked-title { display: flex; align-items: center; gap: 8px; font-size: 13px; padding-top: 18px; border-top: 1px solid #eee5ec; }
+.vulnerability-linked-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.vulnerability-linked-list li { display: flex; align-items: flex-start; gap: 10px; padding: 14px; background: #faf7f9; border: 1px solid #eee5ea; border-radius: 9px; }
+.vulnerability-linked-list li > svg { flex-shrink: 0; color: #a27385; }
+.vulnerability-linked-list li > div { flex: 1; min-width: 0; }
+.vulnerability-linked-list strong { font-size: 12px; overflow-wrap: anywhere; }
+.vulnerability-linked-list small { display: block; margin-top: 5px; font-size: 10px; color: #9a8694; }
+@media (max-width: 600px) { .vulnerability-linked-list li { flex-wrap: wrap; } }

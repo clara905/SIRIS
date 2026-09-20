@@ -1,0 +1,22 @@
+.threat-status-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.threat-status-cards .asset-category-card:nth-child(2) .asset-card-icon { color: #9f7033; background: #fcf0db; }
+.threat-status-cards .asset-category-card:nth-child(3) .asset-card-icon { color: #6c7684; background: #eef0f4; }
+.threat-intro { background: radial-gradient(ellipse at right bottom, #b8874525, transparent 65%), linear-gradient(115deg, #392334, #6f3445); }
+.threat-symbol { background: #f6e9ee; color: #944a61; }
+.threat-asset { display: flex; gap: 8px; align-items: flex-start; max-width: 220px; overflow-wrap: anywhere; }
+.threat-asset > svg { flex-shrink: 0; color: #ae915f; margin-top: 2px; }
+.threat-vulnerabilities { display: flex; flex-wrap: wrap; gap: 5px; max-width: 250px; }
+.threat-vulnerabilities > span { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border: 1px solid #e9e4f1; background: #f5f2f9; color: #817093; border-radius: 6px; font-size: 10px; overflow-wrap: anywhere; }
+.threat-vulnerabilities svg { flex-shrink: 0; }
+.threat-vulnerabilities > small { color: #9a909b; }
+.threat-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 20px; white-space: nowrap; font-size: 10px; font-weight: 600; }
+.threat-status i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.threat-status.active { color: #3e7c62; background: #eaf5ee; }
+.threat-status.inactive { color: #7c818d; background: #f0f1f4; }
+.threat-asset-picker { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #e9e0e4; background: #fcfafb; border-radius: 10px; }
+.threat-asset-picker small, .threat-asset-picker p { font-size: 11px; color: #877885; line-height: 1.6; }
+.threat-picker-pages { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.threat-picker-pages button { border: 0; border-radius: 6px; padding: 7px; background: #f0e8ec; color: #805164; font-size: 10px; }
+.threat-linked-note { display: flex; gap: 8px; align-items: center; font-size: 11px; color: #8a718b; line-height: 1.6; }
+.threat-linked-note svg { flex-shrink: 0; }
+@media (max-width: 600px) { .threat-status-cards { grid-template-columns: 1fr; } .threat-status-cards .asset-category-card { padding-left: 72px; min-height: 82px; justify-content: center; } .threat-status-cards .asset-card-icon { position: absolute; left: 16px; top: 20px; margin: 0; } }

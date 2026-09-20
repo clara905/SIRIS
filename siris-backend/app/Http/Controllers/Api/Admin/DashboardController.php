@@ -37,9 +37,9 @@ class DashboardController extends Controller
         */
 
         $riskByLevel = RiskAssessment::select(
-                'level',
-                DB::raw('COUNT(*) as total')
-            )
+            'level',
+            DB::raw('COUNT(*) as total')
+        )
             ->groupBy('level')
             ->pluck('total', 'level');
 
@@ -58,9 +58,9 @@ class DashboardController extends Controller
         */
 
         $treatmentByStatus = RiskTreatment::select(
-                'status',
-                DB::raw('COUNT(*) as total')
-            )
+            'status',
+            DB::raw('COUNT(*) as total')
+        )
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -102,11 +102,11 @@ class DashboardController extends Controller
         */
 
         $recentRisks = RiskAssessment::with([
-                'asset:id,kode_aset,nama_aset',
-                'threat:id,kode_ancaman,nama_ancaman',
-                'dinilaiOleh:id,name',
-                'treatments:id,risk_assessment_id,status',
-            ])
+            'asset',
+            'threat:id,kode_ancaman,nama_ancaman',
+            'dinilaiOleh:id,name',
+            'treatments:id,risk_assessment_id,status',
+        ])
             ->latest('tanggal_penilaian')
             ->limit(10)
             ->get()

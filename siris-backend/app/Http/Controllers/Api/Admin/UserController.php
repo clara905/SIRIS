@@ -3,23 +3,38 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index()
+    public function roles(): JsonResponse
     {
-        $users = User::with([
-            'role',
-            'bidang',
-            'subBidang',
-            'satker',
-        ])
-        ->latest()
-        ->paginate(15);
+        return response()->json(['data' => Role::orderBy('name')->get(['id', 'name'])]);
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        $request->validate(['search' => ['nullable', 'string', 'max:255'], 'is_active' => ['nullable', 'boolean']]);
+        $users = User::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($query) use ($request) {
+                    $query->where('name', 'like', '%'.$request->string('search').'%')->orWhere('email', 'like', '%'.$request->string('search').'%');
+                });
+            })
+            ->when($request->filled('is_active'), fn ($query) => $query->where('is_active', $request->boolean('is_active')))
+            ->with([
+                'role',
+                'bidang',
+                'subBidang',
+                'satker',
+            ])
+            ->latest()
+            ->paginate(15);
 
         return response()->json([
             'success' => true,
@@ -27,7 +42,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -58,7 +73,7 @@ class UserController extends Controller
         ], 201);
     }
 
-    public function show(User $user)
+    public function show(User $user): JsonResponse
     {
         $user->load([
             'role',
@@ -73,7 +88,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -91,10 +106,14 @@ class UserController extends Controller
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
+        }
+
+        if ($user->id === $request->user()->id && ((int) $validated['role_id'] !== $user->role_id || (array_key_exists('is_active', $validated) && ! $validated['is_active']))) {
+            return response()->json(['message' => 'Akun yang sedang digunakan tidak dapat dinonaktifkan atau diubah perannya.'], 422);
         }
 
         $user->update($validated);
@@ -113,7 +132,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user): JsonResponse
     {
         if ($user->id === auth()->id()) {
             return response()->json([

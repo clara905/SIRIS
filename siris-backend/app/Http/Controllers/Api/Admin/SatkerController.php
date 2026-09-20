@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Satker;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class SatkerController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
         $satkers = Satker::with('bidang')
             ->withCount([
@@ -25,11 +26,11 @@ class SatkerController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'bidang_id' => ['nullable', 'exists:bidangs,id'],
-            'kode_satker' => ['nullable', 'string', 'max:100', 'unique:satkers,kode_satker'],
+            'kode_satker' => ['required', 'string', 'max:100', 'unique:satkers,kode_satker'],
             'nama_satker' => ['required', 'string', 'max:255'],
         ]);
 
@@ -44,7 +45,7 @@ class SatkerController extends Controller
         ], 201);
     }
 
-    public function show(Satker $satker)
+    public function show(Satker $satker): JsonResponse
     {
         $satker->load([
             'bidang',
@@ -58,32 +59,32 @@ class SatkerController extends Controller
         ]);
     }
 
-    public function update(Request $request, Satker $satker)
-{
-    $validated = $request->validate([
-        'bidang_id' => ['nullable', 'exists:bidangs,id'],
-        'kode_satker' => [
-            'required',
-            'string',
-            'max:100',
-            \Illuminate\Validation\Rule::unique('satkers', 'kode_satker')
-                ->ignore($satker->id),
-        ],
-        'nama_satker' => ['required', 'string', 'max:255'],
-    ]);
+    public function update(Request $request, Satker $satker): JsonResponse
+    {
+        $validated = $request->validate([
+            'bidang_id' => ['nullable', 'exists:bidangs,id'],
+            'kode_satker' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('satkers', 'kode_satker')
+                    ->ignore($satker->id),
+            ],
+            'nama_satker' => ['required', 'string', 'max:255'],
+        ]);
 
-    $satker->update($validated);
+        $satker->update($validated);
 
-    $satker->load('bidang');
+        $satker->load('bidang');
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Satker berhasil diperbarui.',
-        'data' => $satker,
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'Satker berhasil diperbarui.',
+            'data' => $satker,
+        ]);
+    }
 
-    public function destroy(Satker $satker)
+    public function destroy(Satker $satker): JsonResponse
     {
         if ($satker->users()->exists()) {
             return response()->json([

@@ -1,0 +1,5 @@
+.organization-categories { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.organization-count { margin-left: 8px; padding: 3px 8px; border-radius: 6px; background: #f4eef1; color: #8b586b; font-size: 11px; }
+.organization-icon { background: #faf0df; color: #9c7842; }
+.organizations-page .dashboard-table td { overflow-wrap: anywhere; }
+@media (max-width: 600px) { .organization-categories { grid-template-columns: 1fr; } }

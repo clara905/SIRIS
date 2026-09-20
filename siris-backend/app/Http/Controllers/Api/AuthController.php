@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\LoginCaptcha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,12 +13,21 @@ class AuthController extends Controller
     /**
      * Login user
      */
-    public function login(Request $request)
+    public function login(Request $request, LoginCaptcha $captcha)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            'captcha_id' => ['required', 'uuid'],
+            'captcha_answer' => ['required', 'string', 'size:6'],
         ]);
+
+        if (! $captcha->verify($credentials['captcha_id'], $credentials['captcha_answer'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode CAPTCHA salah atau kedaluwarsa. Silakan gunakan kode baru.',
+            ], 422);
+        }
 
         $user = User::with([
             'role',
@@ -26,14 +36,14 @@ class AuthController extends Controller
             'satker',
         ])->where('email', $credentials['email'])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau password salah.',
             ], 401);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akun Anda tidak aktif.',
