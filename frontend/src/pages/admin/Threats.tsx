@@ -1,3 +1,4 @@
+import AdminDeleteButton from "../../components/AdminDeleteButton";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ShieldAlert, ShieldCheck, Archive, Plus, Search, RefreshCw, Pencil, X, ChevronLeft, ChevronRight, Boxes, Bug } from "lucide-react";
 import { getThreats, saveThreat } from "../../api/threatApi";
@@ -49,7 +50,7 @@ export default function Threats() {
                     <td><div className="threat-asset"><Boxes size={15} /><span>{threat.asset?.nama || "Belum dikaitkan"}<small className="table-subtext">{threat.asset?.snumber || "—"}</small></span></div></td>
                     <td><div className="threat-vulnerabilities">{threat.vulnerabilities.length ? threat.vulnerabilities.map((item) => <span key={item.id}><Bug size={12} />{item.nama_kerentanan}</span>) : <small>Belum ada kerentanan terkait</small>}</div></td>
                     <td><span className={`threat-status ${threat.is_active ? "active" : "inactive"}`}><i />{threat.is_active ? "Aktif" : "Tidak aktif"}</span></td>
-                    <td><button className="asset-edit" aria-label={`Edit ${threat.nama_ancaman}`} onClick={() => setEditor({ threat })}><Pencil size={15} />Edit</button></td>
+                    <td><button className="asset-edit" aria-label={`Edit ${threat.nama_ancaman}`} onClick={() => setEditor({ threat })}><Pencil size={15} />Edit</button><AdminDeleteButton endpoint={`/admin/threats/${threat.id}`} label={threat.nama_ancaman} onDeleted={() => { setNotice("Ancaman berhasil dihapus."); setPage(1); setRevision((v) => v + 1); }} /></td>
                 </tr>)}</tbody></table></div><div className="asset-pagination"><span>Menampilkan {data.from}–{data.to} dari {data.total} ancaman</span><div><button aria-label="Halaman sebelumnya" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft size={17} /></button><span>Halaman {data.current_page} dari {data.last_page}</span><button aria-label="Halaman berikutnya" disabled={page >= data.last_page} onClick={() => setPage(page + 1)}><ChevronRight size={17} /></button></div></div>
             </> : <div className="asset-empty"><ShieldAlert size={36} /><h3>{query || status ? "Ancaman tidak ditemukan" : "Belum ada ancaman terdaftar"}</h3><p>{query || status ? "Sesuaikan pencarian atau reset filter untuk melihat data lainnya." : "Mulai dokumentasikan ancaman untuk melengkapi pemetaan risiko."}</p><button className="asset-primary" onClick={query || status ? reset : () => setEditor({})}>{query || status ? "Reset filter" : "Tambah ancaman"}</button></div>}
         </section><p className="asset-footnote">Status aktif menunjukkan penggunaan catatan ancaman, bukan tingkat keparahan risiko.</p>

@@ -6,7 +6,7 @@ import { useCurrentUser } from "../routes/RoleGate";
 import { usePortal } from "../components/satker/PortalUI";
 import SirisWordmark from "../components/SirisWordmark";
 import "./SatkerLayout.css";
-const links = [{ to: "dashboard", label: "Beranda", icon: Home }, { to: "assets", label: "Asset Saya", icon: Boxes }, { to: "pengajuan", label: "Pengajuan Risiko", icon: ClipboardList }, { to: "history", label: "Riwayat", icon: History }, { to: "notifications", label: "Notifikasi", icon: Bell }];
+const links = [{ to: "dashboard", label: "Beranda", icon: Home }, { to: "assets", label: "Aset Subbidang", icon: Boxes }, { to: "pengajuan", label: "Pengajuan Risiko", icon: ClipboardList }, { to: "history", label: "Riwayat", icon: History }, { to: "notifications", label: "Notifikasi", icon: Bell }];
 export default function SatkerLayout() { const user = useCurrentUser(); const navigate = useNavigate(); const location = useLocation(); const [open, setOpen] = useState(() => window.innerWidth > 1000); const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const notifications = usePortal<{ unread: number }>(`notifications?route=${encodeURIComponent(location.pathname)}`);
     const unread = notifications.data?.unread || 0;
     const badge = unread > 0 ? <b className="sp-notification-count" aria-label={`${unread} notifikasi belum dibaca`}>{unread > 99 ? "99+" : unread}</b> : null;

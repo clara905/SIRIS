@@ -71,6 +71,16 @@ class SatkerPortalTest extends TestCase
         $this->postJson('/api/satker/threats', $input)->assertForbidden();
     }
 
+    public function test_satker_inventory_fields_are_saved_and_validated(): void
+    {
+        $input = ['nama_aset' => 'Laptop', 'kategori' => 'physical', 'kondisi' => 'Baik', 'idx' => 257, 'jumlah' => 8, 'merk' => 'Merk A', 'snumber' => 'SN-01', 'pengadaan' => '2026-09-20', 'nilai_kekritisan' => 4, 'deskripsi' => 'Inventaris kantor'];
+        $id = $this->postJson('/api/satker/assets', $input)->assertCreated()->assertJsonPath('data.stock', 8)->assertJsonPath('data.idx', 257)->assertJsonPath('data.pengadaan', '2026-09-20')->json('data.id');
+        $this->putJson('/api/satker/assets/'.$id, [...$input, 'jumlah' => 12])->assertOk()->assertJsonPath('data.stock', 12);
+        $this->getJson('/api/satker/assets/'.$id)->assertOk()->assertJsonPath('data.merk', 'Merk A')->assertJsonPath('data.snumber', 'SN-01')->assertJsonPath('data.nilai_kekritisan', 4);
+        $this->postJson('/api/satker/assets', $input)->assertUnprocessable()->assertJsonValidationErrors('idx');
+        $this->putJson('/api/satker/assets/'.$id, [...$input, 'jumlah' => 0, 'pengadaan' => 'invalid', 'nilai_kekritisan' => 6])->assertUnprocessable()->assertJsonValidationErrors(['jumlah', 'pengadaan', 'nilai_kekritisan']);
+    }
+
     private function payload(string $action = 'submit'): array
     {
         return ['asset_id' => $this->asset->id, 'threat_ids' => [$this->threat->id], 'vulnerability_ids' => [$this->vulnerability->id], 'new_vulnerabilities' => [], 'action' => $action, 'catatan' => 'Periksa asset'];
@@ -88,9 +98,10 @@ class SatkerPortalTest extends TestCase
         $this->getJson('/api/satker/assets/'.$id)->assertOk()->assertJsonPath('data.permissions.can_edit', false);
         $this->putJson('/api/satker/assets/'.$id, $input)->assertForbidden();
         Sanctum::actingAs($this->other);
-        $this->getJson('/api/satker/assets')->assertOk()->assertJsonPath('data.total', 0);
-        $this->getJson('/api/satker/assets/'.$id)->assertNotFound();
-        $this->getJson('/api/satker/options?asset_id='.$id)->assertNotFound();
+        $this->getJson('/api/satker/assets')->assertOk()->assertJsonPath('data.total', 2);
+        $this->getJson('/api/satker/assets/'.$id)->assertOk()->assertJsonPath('data.permissions.can_edit', false);
+        $this->putJson('/api/satker/assets/'.$id, $input)->assertForbidden();
+        $this->getJson('/api/satker/options?asset_id='.$id)->assertOk();
         $this->postJson('/api/satker/pengajuan', $this->payload())->assertNotFound();
         $this->getJson('/api/admin/users')->assertForbidden();
         $this->satker->update(['is_active' => false]);

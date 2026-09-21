@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Vulnerability;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
@@ -26,6 +27,28 @@ class RiskAssessmentTest extends TestCase
         Sanctum::actingAs($this->admin);
         $this->assetId = $this->postJson('/api/admin/assets', ['nama' => 'Laptop', 'stock' => 1])->assertCreated()->json('data.id');
         $this->threatId = $this->postJson('/api/admin/threats', ['kode_ancaman' => 'TH-1', 'nama_ancaman' => 'Pencurian', 'asset_id' => $this->assetId])->assertCreated()->json('data.id');
+    }
+
+    public function test_admin_can_delete_unused_records_but_not_linked_assets_or_vulnerabilities(): void
+    {
+        $id = $this->postJson('/api/admin/risk-assessments', $this->payload())->assertCreated()->json('data.id');
+        $this->deleteJson('/api/admin/threats/'.$this->threatId)->assertUnprocessable();
+        $this->deleteJson('/api/admin/risk-assessments/'.$id)->assertOk();
+        $this->assertDatabaseMissing('risk_assessments', ['id' => $id]);
+        $this->assertDatabaseMissing('risk_assessment_threat', ['risk_assessment_id' => $id]);
+        $this->assertDatabaseHas('threats', ['id' => $this->threatId]);
+        $this->deleteJson('/api/admin/assets/'.$this->assetId)->assertUnprocessable();
+        $asset = $this->postJson('/api/admin/assets', ['nama' => 'Unused', 'stock' => 1])->assertCreated()->json('data.id');
+        $this->deleteJson('/api/admin/assets/'.$asset)->assertOk();
+        $this->assertDatabaseMissing('assets', ['id' => $asset]);
+        $vulnerability = Vulnerability::create(['nama_kerentanan' => 'Unused', 'is_active' => true]);
+        $vulnerability->threats()->attach($this->threatId);
+        $this->deleteJson('/api/admin/vulnerabilities/'.$vulnerability->id)->assertUnprocessable();
+        $vulnerability->threats()->detach();
+        $this->deleteJson('/api/admin/vulnerabilities/'.$vulnerability->id)->assertOk();
+        $this->assertDatabaseMissing('vulnerabilities', ['id' => $vulnerability->id]);
+        $this->deleteJson('/api/admin/threats/'.$this->threatId)->assertOk();
+        $this->assertDatabaseMissing('threats', ['id' => $this->threatId]);
     }
 
     private function payload(): array

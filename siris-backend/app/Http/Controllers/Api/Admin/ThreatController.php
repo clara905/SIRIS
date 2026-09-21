@@ -32,7 +32,7 @@ class ThreatController extends Controller
 
             $query->where(function ($q) use ($search) {
                 $q->where('kode_ancaman', 'like', "%{$search}%")
-                  ->orWhere('nama_ancaman', 'like', "%{$search}%");
+                    ->orWhere('nama_ancaman', 'like', "%{$search}%");
             });
         }
 
@@ -105,7 +105,7 @@ class ThreatController extends Controller
                 $vulnerabilityIds[] = $vulnerability->id;
             }
 
-            if (!empty($vulnerabilityIds)) {
+            if (! empty($vulnerabilityIds)) {
                 $threat->vulnerabilities()->sync(
                     array_unique($vulnerabilityIds)
                 );
@@ -227,6 +227,16 @@ class ThreatController extends Controller
 
     public function destroy(Threat $threat)
     {
+        if ($threat->riskAssessments()->exists()
+            || DB::table('risk_assessment_threat')->where('threat_id', $threat->id)->exists()
+            || DB::table('risk_submission_threat')->where('threat_id', $threat->id)->exists()
+            || $threat->vulnerabilities()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ancaman masih digunakan oleh kerentanan, penilaian risiko, atau pengajuan dan tidak dapat dihapus.',
+            ], 422);
+        }
+
         $threat->delete();
 
         return response()->json([

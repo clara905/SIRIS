@@ -51,7 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'index']);
             Route::get('risk-assessments/rules', [RiskAssessmentController::class, 'rules']);
             Route::get('risk-assessments/threat-options', [RiskAssessmentController::class, 'threatOptions']);
-            Route::apiResource('risk-assessments', RiskAssessmentController::class)->only(['index', 'store', 'update']);
+            Route::apiResource('risk-assessments', RiskAssessmentController::class)->only(['index', 'store', 'update', 'destroy']);
 
             Route::get('/test', function () {
                 return response()->json([

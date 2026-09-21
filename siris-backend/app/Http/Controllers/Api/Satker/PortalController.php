@@ -32,6 +32,11 @@ class PortalController extends Controller
         return SatkerPortal::scope(Asset::query(), $request->user());
     }
 
+    private function reportableAssetsQuery(Request $request): Builder
+    {
+        return $this->assetsQuery($request)->where(fn (Builder $query) => $query->where('satker_id', $request->user()->satker_id)->orWhereNull('satker_id'));
+    }
+
     private function submissionsQuery(Request $request): Builder
     {
         SatkerPortal::assigned($request->user());
@@ -80,7 +85,7 @@ class PortalController extends Controller
     public function assets(Request $request): JsonResponse
     {
         $request->validate(['search' => ['nullable', 'string', 'max:255'], 'status' => ['nullable', Rule::in(['active', 'inactive'])], 'kondisi' => ['nullable', 'string', 'max:100'], 'risk' => ['nullable', Rule::in(['active', 'none'])]]);
-        $query = $this->assetsQuery($request);
+        $query = $request->input('scope') === 'reportable' ? $this->reportableAssetsQuery($request) : $this->assetsQuery($request);
         if ($request->filled('search')) {
             $query->where(fn (Builder $query) => $query->where('nama_aset', 'like', '%'.$request->string('search').'%')->orWhere('kode_aset', 'like', '%'.$request->string('search').'%'));
         }
@@ -112,7 +117,7 @@ class PortalController extends Controller
     {
         SatkerPortal::assigned($request->user());
         $user = $request->user();
-        $asset = Asset::create([...$request->validated(), 'kode_aset' => 'AST-'.Str::uuid(), 'jumlah' => 1, 'status' => 'active', 'bidang_id' => $user->bidang_id, 'sub_bidang_id' => $user->sub_bidang_id, 'satker_id' => $user->satker_id, 'created_by' => $user->id]);
+        $asset = Asset::create([...$request->validated(), 'kode_aset' => 'AST-'.Str::uuid(), 'jumlah' => $request->validated('jumlah', 1), 'lokasi' => $user->satker->nama_satker, 'status' => 'active', 'bidang_id' => $user->bidang_id, 'sub_bidang_id' => $user->sub_bidang_id, 'satker_id' => $user->satker_id, 'created_by' => $user->id]);
 
         return $this->response(SatkerPortal::assetData($asset, $user), 201);
     }
@@ -133,7 +138,7 @@ class PortalController extends Controller
             'nama_ancaman' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string', 'max:5000'],
         ]);
-        $asset = $this->assetsQuery($request)->findOrFail($data['asset_id']);
+        $asset = $this->reportableAssetsQuery($request)->findOrFail($data['asset_id']);
         $threat = Threat::create([
             'asset_id' => $asset->id,
             'nama_ancaman' => $data['nama_ancaman'],
@@ -191,7 +196,7 @@ class PortalController extends Controller
 
     private function saveSubmission(RiskSubmissionRequest $request, ?int $id = null): JsonResponse
     {
-        $this->assetsQuery($request)->findOrFail($request->integer('asset_id'));
+        $this->reportableAssetsQuery($request)->findOrFail($request->integer('asset_id'));
         $submission = DB::transaction(function () use ($request, $id) {
             $user = $request->user();
             $submission = $id ? $this->submissionsQuery($request)->where('created_by', $user->id)->lockForUpdate()->findOrFail($id) : new RiskSubmission;

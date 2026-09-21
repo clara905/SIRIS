@@ -13,6 +13,20 @@ use Illuminate\Validation\Rule;
 
 class RiskAssessmentController extends Controller
 {
+    public function destroy(RiskAssessment $riskAssessment): JsonResponse
+    {
+        if ($riskAssessment->risk_submission_id || $riskAssessment->treatments()->exists()) {
+            return response()->json(['success' => false, 'message' => 'Penilaian masih terkait pengajuan atau treatment dan tidak dapat dihapus.'], 422);
+        }
+        DB::transaction(function () use ($riskAssessment): void {
+            $riskAssessment->threats()->detach();
+            $riskAssessment->vulnerabilities()->detach();
+            $riskAssessment->delete();
+        });
+
+        return response()->json(['success' => true, 'message' => 'Penilaian berhasil dihapus.']);
+    }
+
     public function rules(): JsonResponse
     {
         return response()->json(['success' => true, 'data' => config('risk_assessment')]);

@@ -11,8 +11,7 @@ class SatkerAssetPolicy
     {
         return $user->hasRole('satker') && $user->is_active && $user->bidang_id && $user->sub_bidang_id && $user->satker_id
             && (int) $asset->bidang_id === (int) $user->bidang_id
-            && (int) $asset->sub_bidang_id === (int) $user->sub_bidang_id
-            && ($asset->satker_id === null || (int) $asset->satker_id === (int) $user->satker_id);
+            && (int) $asset->sub_bidang_id === (int) $user->sub_bidang_id;
     }
 
     public function update(User $user, Asset $asset): bool

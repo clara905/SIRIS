@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssetRequest;
 use App\Models\Asset;
+use App\Models\RiskSubmission;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -106,10 +107,10 @@ class AssetController extends Controller
 
     public function destroy(Asset $asset)
     {
-        if ($asset->threats()->exists()) {
+        if ($asset->threats()->exists() || $asset->riskAssessments()->exists() || RiskSubmission::where('asset_id', $asset->id)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Asset tidak dapat dihapus karena masih memiliki threat.',
+                'message' => 'Aset masih digunakan oleh ancaman, penilaian risiko, atau pengajuan dan tidak dapat dihapus.',
             ], 422);
         }
 

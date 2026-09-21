@@ -25,7 +25,7 @@ class SatkerPortal
 
         $query->where('bidang_id', $user->bidang_id)->where('sub_bidang_id', $user->sub_bidang_id);
         if ($query->getModel() instanceof Asset) {
-            return $query->where(fn (Builder $query) => $query->where('satker_id', $user->satker_id)->orWhereNull('satker_id'));
+            return $query;
         }
 
         return $query->where('satker_id', $user->satker_id);
