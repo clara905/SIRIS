@@ -13,6 +13,7 @@ class RiskAssessment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'risk_submission_id',
         'asset_id',
         'threat_id',
         'likelihood',
@@ -32,6 +33,11 @@ class RiskAssessment extends Model
             'skor' => 'integer',
             'tanggal_penilaian' => 'datetime',
         ];
+    }
+
+    public function submission(): BelongsTo
+    {
+        return $this->belongsTo(RiskSubmission::class, 'risk_submission_id');
     }
 
     public function asset(): BelongsTo

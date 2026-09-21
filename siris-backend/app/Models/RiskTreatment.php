@@ -11,6 +11,8 @@ class RiskTreatment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'approved_by',
+        'approved_at',
         'risk_assessment_id',
         'strategi',
         'pic',

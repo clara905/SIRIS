@@ -13,6 +13,8 @@ class Asset extends Model
     use HasFactory;
 
     protected $fillable = [
+        'created_by',
+        'status',
         'kode_aset',
         'nama_aset',
         'jumlah',
@@ -62,6 +64,11 @@ class Asset extends Model
             'pengadaan' => 'date:Y-m-d',
             'nilai_kekritisan' => 'integer',
         ];
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function bidang(): BelongsTo

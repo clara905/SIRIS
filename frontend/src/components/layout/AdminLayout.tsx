@@ -1,3 +1,4 @@
+import RoleGate from "../../routes/RoleGate";
 import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import Sidebar from "./Sidebar";
@@ -90,4 +91,4 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     );
 };
 
-export default AdminLayout;
+export default function ProtectedAdminLayout(props: AdminLayoutProps) { return <RoleGate role="admin"><AdminLayout {...props} /></RoleGate>; }

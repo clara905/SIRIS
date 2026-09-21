@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api, { getApiError } from "../api/axios";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, RefreshCw, ShieldCheck } from "lucide-react";
 import "./Login.css";
+import { roleHome } from "../routes/RoleGate";
 import SirisWordmark from "../components/SirisWordmark";
 
 interface CaptchaChallenge {
@@ -52,11 +53,11 @@ export default function Login() {
         setLoading(true);
         setError("");
         try {
-            const response = await api.post<{ data: { token: string } }>("/login", {
+            const response = await api.post<{ data: { token: string; user: { role: { name: string } } } }>("/login", {
                 email, password, captcha_id: captcha.id, captcha_answer: captchaAnswer,
             });
             localStorage.setItem("token", response.data.data.token);
-            navigate("/admin/dashboard", { replace: true });
+            navigate(roleHome(response.data.data.user.role?.name), { replace: true });
         } catch (error) {
             setError(getApiError(error));
             await loadCaptcha();

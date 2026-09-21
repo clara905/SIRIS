@@ -5,6 +5,10 @@ import {
     Routes,
 } from "react-router-dom";
 
+import SatkerRoutes from "./routes/SatkerRoutes";
+import RoleGate from "./routes/RoleGate";
+import ReviewPortal from "./pages/satker/ReviewPortal";
+import Account from "./pages/satker/Account";
 import AdminLayout from "./components/layout/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Organizations from "./pages/admin/Organizations";
@@ -19,6 +23,9 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                <Route path="/satker/*" element={<SatkerRoutes />} />
+                <Route path="/kasub/pengajuan" element={<RoleGate role="kasub"><ReviewPortal /></RoleGate>} />
+                <Route path="/account" element={<RoleGate><Account /></RoleGate>} />
                 <Route path="/admin/organisasi" element={localStorage.getItem("token") ? <AdminLayout><Organizations /></AdminLayout> : <Navigate to="/login" replace />} />
                 <Route path="/admin/users" element={localStorage.getItem("token") ? <AdminLayout><Users /></AdminLayout> : <Navigate to="/login" replace />} />
                 <Route path="/login" element={<Login />} />

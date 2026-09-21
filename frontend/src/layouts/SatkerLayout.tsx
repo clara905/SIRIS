@@ -1,0 +1,22 @@
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Home, Boxes, ClipboardList, History, Bell, LogOut, Menu, X } from "lucide-react";
+import api, { getApiError } from "../api/axios";
+import { useCurrentUser } from "../routes/RoleGate";
+import { usePortal } from "../components/satker/PortalUI";
+import SirisWordmark from "../components/SirisWordmark";
+import "./SatkerLayout.css";
+const links = [{ to: "dashboard", label: "Beranda", icon: Home }, { to: "assets", label: "Asset Saya", icon: Boxes }, { to: "pengajuan", label: "Pengajuan Risiko", icon: ClipboardList }, { to: "history", label: "Riwayat", icon: History }, { to: "notifications", label: "Notifikasi", icon: Bell }];
+export default function SatkerLayout() { const user = useCurrentUser(); const navigate = useNavigate(); const location = useLocation(); const [open, setOpen] = useState(() => window.innerWidth > 1000); const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const notifications = usePortal<{ unread: number }>(`notifications?route=${encodeURIComponent(location.pathname)}`);
+    const unread = notifications.data?.unread || 0;
+    const badge = unread > 0 ? <b className="sp-notification-count" aria-label={`${unread} notifikasi belum dibaca`}>{unread > 99 ? "99+" : unread}</b> : null;
+    useEffect(() => { const refresh = () => notifications.reload(); window.addEventListener("satker-notifications", refresh); window.addEventListener("focus", refresh); const timer = window.setInterval(refresh, 60000); return () => { window.removeEventListener("satker-notifications", refresh); window.removeEventListener("focus", refresh); window.clearInterval(timer); }; }, [notifications.reload]);
+    useEffect(() => {
+        const viewport = window.matchMedia("(min-width: 1001px)");
+        const syncSidebar = (event: MediaQueryListEvent) => setOpen(event.matches);
+        viewport.addEventListener("change", syncSidebar);
+        return () => viewport.removeEventListener("change", syncSidebar);
+    }, []);
+    async function logout() { setBusy(true); setError(""); try { await api.post("/logout"); localStorage.removeItem("token"); navigate("/login", { replace: true }); } catch (err) { setError(getApiError(err)); } finally { setBusy(false); } }
+    return <div className={`satker-portal ${open ? "sp-menu-open" : "sp-menu-closed"}`}>{open && <button className="sp-backdrop" aria-label="Tutup menu" onClick={() => setOpen(false)} />}<aside className={`sp-sidebar ${open ? "open" : ""}`}><Link className="sp-brand" to="/satker/dashboard"><img src="/kemhan-logo.png" alt="Kementerian Pertahanan" /><div><strong>SIRIS</strong><small>Risk Reporting Portal</small></div></Link><div className="sp-unit"><span>UNIT KERJA ANDA</span><strong>{user.satker?.nama_satker || "Belum ditetapkan"}</strong><small>{user.sub_bidang?.nama_sub_bidang || "Hubungi administrator"}</small></div><nav aria-label="Menu Satker">{links.map(({ to, label, icon: Icon }) => <NavLink key={to} to={`/satker/${to}`} onClick={() => { if (window.innerWidth <= 1000) setOpen(false); }}><Icon size={19} />{label}{to === "notifications" && badge}</NavLink>)}</nav><div className="sp-sidebar-footer"><button disabled={busy} onClick={logout}><LogOut size={17} />{busy ? "Keluar..." : "Keluar"}</button>{error && <p role="alert">{error}</p>}</div></aside><div className="sp-main"><header className="sp-topbar"><button className="sp-menu" aria-label={open ? "Tutup menu" : "Buka menu"} onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button><div className="sp-header-title"><strong><SirisWordmark /></strong><span>Risk Information System</span></div><div className="sp-topbar-right"><Link className="sp-bell" to="/satker/notifications" aria-label={`Notifikasi, ${notifications.data?.unread || 0} belum dibaca`}><Bell size={20} />{badge}</Link><Link className="sp-profile" to="/satker/profile" aria-label={`Buka profil ${user.name}`} title="Buka profil"><span>{user.name.slice(0, 1)}</span><div><strong>{user.name}</strong><small>Satker</small></div></Link></div></header><main className="sp-content"><Outlet /></main></div><nav className="sp-bottom-nav" aria-label="Navigasi mobile">{links.map(({ to, label, icon: Icon }) => <NavLink key={to} to={`/satker/${to}`}><Icon size={20} />{to === "notifications" && badge}<span>{label === "Pengajuan Risiko" ? "Pengajuan" : label}</span></NavLink>)}</nav></div>;
+}

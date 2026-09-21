@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\VulnerabilityController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CaptchaController;
+use App\Http\Controllers\Api\Satker\PortalController;
+use App\Http\Controllers\Api\SubmissionReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -76,4 +78,31 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::apiResource('threats', ThreatController::class);
         });
+});
+
+Route::middleware(['auth:sanctum', 'role:satker'])->prefix('satker')->controller(PortalController::class)->group(function () {
+    Route::get('dashboard', 'dashboard');
+    Route::get('sub-bidang', 'subBidang');
+    Route::get('assets', 'assets');
+    Route::post('assets', 'storeAsset');
+    Route::get('assets/{id}', 'asset')->whereNumber('id');
+    Route::put('assets/{id}', 'updateAsset')->whereNumber('id');
+    Route::get('options', 'options');
+    Route::post('threats', 'storeThreat');
+    Route::get('pengajuan', 'submissions');
+    Route::post('pengajuan', 'storeSubmission');
+    Route::get('pengajuan/{id}', 'submission')->whereNumber('id');
+    Route::put('pengajuan/{id}', 'updateSubmission')->whereNumber('id');
+    Route::get('risk-assessments', 'assessments');
+    Route::get('risk-assessments/{id}', 'assessment')->whereNumber('id');
+    Route::get('notifications', 'notifications');
+    Route::patch('notifications/read-all', 'readAll');
+    Route::patch('notifications/{id}/read', 'readNotification')->whereNumber('id');
+    Route::patch('treatments/{id}/progress', 'treatment')->whereNumber('id');
+});
+Route::middleware(['auth:sanctum', 'role:kasub'])->prefix('kasub')->controller(SubmissionReviewController::class)->group(function () {
+    Route::get('pengajuan', 'index');
+    Route::patch('pengajuan/{id}/review', 'review')->whereNumber('id');
+    Route::post('pengajuan/{id}/assessment', 'assessment')->whereNumber('id');
+    Route::post('pengajuan/{id}/treatment', 'treatment')->whereNumber('id');
 });

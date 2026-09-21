@@ -39,7 +39,7 @@ api.interceptors.response.use(
 
 export function getApiError(error: unknown): string {
     if (axios.isAxiosError<{ message?: string }>(error)) {
-        if (error.response?.status === 403) return "Akses ditolak. Gunakan akun admin yang aktif.";
+        if (error.response?.status === 403) return error.response.data.message || "Akses ditolak. Akun Anda tidak memiliki kewenangan untuk tindakan ini.";
         if (error.response?.status === 401) return error.response.data.message || "Sesi berakhir. Silakan login kembali.";
         if (!error.response) return "Backend tidak dapat dihubungi. Periksa koneksi dan pastikan server API berjalan.";
         return error.response.data.message || "Gagal mengambil data dari server.";
