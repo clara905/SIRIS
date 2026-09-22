@@ -2,6 +2,7 @@ import api from "../axios";
 export interface Person { id: number; name: string; email: string; role: { name: string }; bidang_id: number | null; sub_bidang_id: number | null; satker_id: number | null; bidang: { nama_bidang: string } | null; sub_bidang: { nama_sub_bidang: string } | null; satker: { nama_satker: string } | null }
 export interface Vulnerability { id: number; nama_kerentanan: string; deskripsi?: string }
 export interface Threat { id: number; nama_ancaman: string; vulnerabilities: Vulnerability[] }
+export interface SubmissionOptions { threats: Threat[]; vulnerabilities: Vulnerability[] }
 export async function saveThreat(data: { asset_id: number; nama_ancaman: string; deskripsi: string }): Promise<Threat> {
     const response = await api.post<{ data: Threat }>("/satker/threats", data);
     return response.data.data;

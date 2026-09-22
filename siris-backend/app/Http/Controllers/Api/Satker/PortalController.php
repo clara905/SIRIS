@@ -11,6 +11,7 @@ use App\Models\RiskAssessment;
 use App\Models\RiskSubmission;
 use App\Models\RiskTreatment;
 use App\Models\Threat;
+use App\Models\Vulnerability;
 use App\Services\SatkerPortal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -34,7 +35,7 @@ class PortalController extends Controller
 
     private function reportableAssetsQuery(Request $request): Builder
     {
-        return $this->assetsQuery($request)->where(fn (Builder $query) => $query->where('satker_id', $request->user()->satker_id)->orWhereNull('satker_id'));
+        return $this->assetsQuery($request);
     }
 
     private function submissionsQuery(Request $request): Builder
@@ -155,9 +156,10 @@ class PortalController extends Controller
     {
         $request->validate(['asset_id' => ['required', 'integer']]);
         $asset = $this->assetsQuery($request)->findOrFail($request->integer('asset_id'));
-        $threats = Threat::where('is_active', true)->where(fn (Builder $query) => $query->whereNull('asset_id')->orWhere('asset_id', $asset->id))->with(['vulnerabilities' => fn ($query) => $query->where('is_active', true)])->orderBy('nama_ancaman')->get();
+        $threats = Threat::where('is_active', true)->with(['vulnerabilities' => fn ($query) => $query->where('is_active', true)])->orderBy('nama_ancaman')->get()->unique(fn ($threat) => mb_strtolower(trim($threat->nama_ancaman)))->values();
+        $vulnerabilities = Vulnerability::where('is_active', true)->orderBy('nama_kerentanan')->get()->unique(fn ($vulnerability) => mb_strtolower(trim($vulnerability->nama_kerentanan)))->values();
 
-        return $this->response($threats);
+        return $this->response(['threats' => $threats, 'vulnerabilities' => $vulnerabilities]);
     }
 
     public function submissions(Request $request): JsonResponse

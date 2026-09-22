@@ -57,6 +57,7 @@
 .asset-criticality small { display: block; margin-top: 7px; font-size: 10px; color: #887d87; }
 .asset-edit { display: inline-flex; gap: 6px; align-items: center; justify-content: center; min-height: 36px; border: 1px solid #e8dfe3; border-radius: 7px; padding: 8px 10px; background: #fff; color: #80384b; font-size: 12px; }
 .asset-edit:hover:not(:disabled) { background: #faf2f5; }
+.asset-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .asset-pagination { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding: 18px 24px; border-top: 1px solid #eee8eb; font-size: 11px; color: #8e818e; }
 .asset-pagination > div { display: flex; align-items: center; gap: 12px; }
 .asset-pagination button { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #e8dfe3; border-radius: 6px; background: #fff; color: #80384b; }
